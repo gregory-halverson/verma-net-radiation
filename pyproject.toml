@@ -14,8 +14,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "monte-carlo-sensitivity",
     "numpy",
     "rasters",
+    "seaborn",
     "sun-angles>=1.2.0"
 ]
 requires-python = ">=3.10"
