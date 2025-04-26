@@ -31,7 +31,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-verma_net_radiation = ["*.txt", "*.tif"]
+verma_net_radiation = ["*.txt"]
 
 [project.urls]
 "Homepage" = "https://github.com/JPL-Evapotranspiration-Algorithms/verma-net-radiation"
