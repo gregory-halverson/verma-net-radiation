@@ -1,6 +1,7 @@
 from typing import Union, Dict
 import warnings
 import numpy as np
+from pandas import DataFrame
 import rasters as rt
 from rasters import Raster
 
@@ -131,3 +132,53 @@ def daily_Rn_integration_verma(
         Rn_daily = 1.6 * Rn / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
     
     return Rn_daily
+
+
+def process_verma_net_radiation_table(verma_net_radiation_inputs_df: DataFrame) -> DataFrame:
+    """
+    Process a DataFrame containing inputs for Verma net radiation calculations.
+
+    This function takes a DataFrame with columns representing various input parameters
+    required for calculating net radiation and its components. It processes the inputs,
+    computes the radiation components using the `process_verma_net_radiation` function,
+    and appends the results as new columns to the input DataFrame.
+
+    Parameters:
+        verma_net_radiation_inputs_df (DataFrame): A DataFrame containing the following columns:
+            - Rg: Incoming shortwave radiation (W/m²).
+            - albedo: Surface albedo (unitless, constrained between 0 and 1).
+            - ST_C: Surface temperature in Celsius.
+            - EmisWB: Surface emissivity (unitless, constrained between 0 and 1).
+            - Ta_C: Air temperature in Celsius.
+            - RH: Relative humidity (fractional, e.g., 0.5 for 50%).
+
+    Returns:
+        DataFrame: A copy of the input DataFrame with additional columns for the calculated
+        radiation components:
+            - SWout: Outgoing shortwave radiation (W/m²).
+            - LWin: Incoming longwave radiation (W/m²).
+            - LWout: Outgoing longwave radiation (W/m²).
+            - Rn: Instantaneous net radiation (W/m²).
+    """
+    SWin = np.array(verma_net_radiation_inputs_df.Rg)
+    albedo = np.array(verma_net_radiation_inputs_df.albedo)
+    ST_C = np.array(verma_net_radiation_inputs_df.ST_C)
+    emissivity = np.array(verma_net_radiation_inputs_df.EmisWB)
+    Ta_C = np.array(verma_net_radiation_inputs_df.Ta_C)
+    RH = np.array(verma_net_radiation_inputs_df.RH)
+
+    results = process_verma_net_radiation(
+        SWin=SWin,
+        albedo=albedo,
+        ST_C=ST_C,
+        emissivity=emissivity,
+        Ta_C=Ta_C,
+        RH=RH,
+    )
+
+    verma_net_radiation_outputs_df = verma_net_radiation_inputs_df.copy()
+
+    for key, value in results.items():
+        verma_net_radiation_outputs_df[key] = value
+
+    return verma_net_radiation_outputs_df
