@@ -1,5 +1,3 @@
-outgoing_longwave_radiation.py
-
 """
 Provides a function to calculate outgoing longwave radiation from land surface temperature and emissivity using the Stefan-Boltzmann Law.
 

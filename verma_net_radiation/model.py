@@ -97,6 +97,7 @@ def verma_net_radiation(
 
     raster_processing = isinstance(geometry, RasterGeometry) or isinstance(ST_C, Raster)
     spatial_temporal_processing = geometry is not None and time_UTC is not None
+    # print("spatial_temporal_processing:", spatial_temporal_processing)
 
     # Create GEOS5FP connection if not provided
     if GEOS5FP_connection is None:
@@ -104,11 +105,15 @@ def verma_net_radiation(
 
     # Retrieve incoming shortwave if not provided
     if SWin is None and spatial_temporal_processing:
+        # print("Retrieving incoming shortwave radiation (SWin) from GEOS-5 FP...")
         SWin = GEOS5FP_connection.SWin(
             time_UTC=time_UTC,
             geometry=geometry,
             resampling=resampling
         )
+    
+    if SWin is None:
+        raise ValueError("incoming shortwave radiation (SWin) not given")
 
     # Retrieve air temperature if not provided, using GEOS5FP and geometry/time
     if Ta_C is None and spatial_temporal_processing:
