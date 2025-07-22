@@ -28,9 +28,12 @@ import numpy as np
 from rasters import Raster
 from typing import Union
 
+from rasters import SpatialGeometry, RasterGeometry
+
 def brutsaert_atmospheric_emissivity(
         Ea_Pa: Union[Raster, np.ndarray, float],
-        Ta_K: Union[Raster, np.ndarray, float]
+        Ta_K: Union[Raster, np.ndarray, float],
+        geometry: SpatialGeometry = None,
         ) -> Union[Raster, np.ndarray, float]:
     """
     Calculate clear-sky atmospheric emissivity using the Brutsaert (1975) model.
@@ -69,23 +72,26 @@ def brutsaert_atmospheric_emissivity(
     np.ndarray
         Atmospheric emissivity (unitless, typically 0.7–0.9 for clear sky).
     """
-    np.save("Ea_Pa.npy", Ea_Pa)
-    np.save("Ta_K.npy", Ta_K)
+    # check if inputs are scalars
+    scalar_processing = np.isscalar(Ea_Pa) and np.isscalar(Ta_K)
+    
+    if geometry is None and isinstance(Ea_Pa, Raster):
+        geometry = Ea_Pa.geometry
+    elif geometry is None and isinstance(Ta_K, Raster):
+        geometry = Ta_K.geometry
 
-    # Track if inputs are scalars
-    Ea_Pa_is_scalar = np.isscalar(Ea_Pa)
-    Ta_K_is_scalar = np.isscalar(Ta_K)
+    raster_processing = isinstance(geometry, RasterGeometry)
+
     # Convert to numpy arrays for calculation and ensure float dtype
     Ea_Pa_arr = np.asarray(Ea_Pa, dtype=float)
     Ta_K_arr = np.asarray(Ta_K, dtype=float)
-
 
     # Calculate the dimensionless water vapor parameter (η₁)
     eta1 = 0.465 * Ea_Pa_arr / Ta_K_arr
 
     # Argument for the square root in the exponent; must be non-negative
     eta2_arg = np.clip(1.2 + 3 * eta1, 0, None)
-    
+
     if np.isscalar(eta2_arg):
         sqrt_eta2_arg = np.sqrt(eta2_arg) if eta2_arg >= 0 else np.nan
     else:
@@ -103,7 +109,9 @@ def brutsaert_atmospheric_emissivity(
     )
 
     # If both inputs were scalars, return a float, else return array
-    if Ea_Pa_is_scalar and Ta_K_is_scalar:
+    if scalar_processing:
         return float(np.squeeze(atmospheric_emissivity))
+    elif raster_processing:
+        return Raster(atmospheric_emissivity, geometry=geometry)
     else:
         return atmospheric_emissivity
