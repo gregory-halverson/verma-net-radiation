@@ -69,6 +69,10 @@ def brutsaert_atmospheric_emissivity(
     np.ndarray
         Atmospheric emissivity (unitless, typically 0.7–0.9 for clear sky).
     """
+    # Ensure inputs are numpy arrays for consistent broadcasting
+    Ea_Pa = np.asarray(Ea_Pa)
+    Ta_K = np.asarray(Ta_K)
+
     # Calculate the dimensionless water vapor parameter (η₁)
     eta1 = 0.465 * Ea_Pa / Ta_K
 
@@ -88,4 +92,10 @@ def brutsaert_atmospheric_emissivity(
         np.nan
     )
 
-    return atmospheric_emissivity
+    # If both inputs were floats, return a float, else return array
+    if isinstance(Ea_Pa, np.ndarray) and Ea_Pa.shape == () and isinstance(Ta_K, np.ndarray) and Ta_K.shape == ():
+        return float(atmospheric_emissivity)
+    elif atmospheric_emissivity.shape == ():
+        return float(atmospheric_emissivity)
+    else:
+        return atmospheric_emissivity
