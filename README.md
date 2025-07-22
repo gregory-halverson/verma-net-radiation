@@ -17,19 +17,19 @@ Import this package as `verma_net_radiation` with underscores.
 
 This module provides functions to calculate instantaneous net radiation and its components, integrate daily net radiation, and process radiation data from a DataFrame. Below is a detailed explanation of each function and how to use them.
 
-### `process_verma_net_radiation`
+### `verma_net_radiation`
 
 **Description**:  
 Calculates instantaneous net radiation and its components based on input parameters.
 
 **Parameters**:
-- `SWin` (Union[Raster, np.ndarray]): Incoming shortwave radiation (W/m²).
-- `albedo` (Union[Raster, np.ndarray]): Surface albedo (unitless, constrained between 0 and 1).
-- `ST_C` (Union[Raster, np.ndarray]): Surface temperature in Celsius.
-- `emissivity` (Union[Raster, np.ndarray]): Surface emissivity (unitless, constrained between 0 and 1).
-- `Ta_C` (Union[Raster, np.ndarray]): Air temperature in Celsius.
-- `RH` (Union[Raster, np.ndarray]): Relative humidity (fractional, e.g., 0.5 for 50%).
-- `cloud_mask` (Union[Raster, np.ndarray], optional): Boolean mask indicating cloudy areas (True for cloudy).
+- `SWin` (Union[Raster, np.ndarray, float]): Incoming shortwave radiation (W/m²).
+- `albedo` (Union[Raster, np.ndarray, float]): Surface albedo (unitless, constrained between 0 and 1).
+- `ST_C` (Union[Raster, np.ndarray, float]): Surface temperature in Celsius.
+- `emissivity` (Union[Raster, np.ndarray, float]): Surface emissivity (unitless, constrained between 0 and 1).
+- `Ta_C` (Union[Raster, np.ndarray, float]): Air temperature in Celsius.
+- `RH` (Union[Raster, np.ndarray, float]): Relative humidity (fractional, e.g., 0.5 for 50%).
+- `cloud_mask` (Union[Raster, np.ndarray, float], optional): Boolean mask indicating cloudy areas (True for cloudy).
 
 **Returns**:
 A dictionary containing:
@@ -40,7 +40,7 @@ A dictionary containing:
 
 **Example**:
 ```python
-results = process_verma_net_radiation(
+results = verma_net_radiation(
     SWin=SWin_array,
     albedo=albedo_array,
     ST_C=surface_temp_array,
@@ -81,7 +81,7 @@ daily_Rn = daily_Rn_integration_verma(
 
 ---
 
-### `process_verma_net_radiation_table`
+### `verma_net_radiation_table`
 
 **Description**:  
 Processes a DataFrame containing inputs for Verma net radiation calculations and appends the results as new columns.
@@ -91,7 +91,7 @@ Processes a DataFrame containing inputs for Verma net radiation calculations and
   - `Rg`: Incoming shortwave radiation (W/m²).
   - `albedo`: Surface albedo (unitless, constrained between 0 and 1).
   - `ST_C`: Surface temperature in Celsius.
-  - `EmisWB`: Surface emissivity (unitless, constrained between 0 and 1).
+  - `EmisWB` or `emissivity`: Surface emissivity (unitless, constrained between 0 and 1).
   - `Ta_C`: Air temperature in Celsius.
   - `RH`: Relative humidity (fractional, e.g., 0.5 for 50%).
 
@@ -104,7 +104,7 @@ Processes a DataFrame containing inputs for Verma net radiation calculations and
 
 **Example**:
 ```python
-output_df = process_verma_net_radiation_table(input_df)
+output_df = verma_net_radiation_table(input_df)
 ```
 
 ## References  
