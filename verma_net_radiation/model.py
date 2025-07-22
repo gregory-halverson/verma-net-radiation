@@ -3,8 +3,10 @@ from typing import Union, Dict
 import numpy as np
 import warnings
 from rasters import Raster
+
 from .brutsaert_atmospheric_emissivity import brutsaert_atmospheric_emissivity
 from .incoming_longwave_radiation import incoming_longwave_radiation
+from .outgoing_longwave_radiation import outgoing_longwave_radiation
 
 STEFAN_BOLTZMAN_CONSTANT = 5.67036713e-8  # SI units watts per square meter per kelvin to the fourth
 
@@ -71,12 +73,13 @@ def verma_net_radiation(
     # Constrain emissivity between 0 and 1
     emissivity = np.clip(emissivity, 0, 1)
 
+
     # Calculate outgoing longwave from land surface temperature and emissivity
-    LWout = emissivity * STEFAN_BOLTZMAN_CONSTANT * ST_K ** 4
+    LWout = outgoing_longwave_radiation(emissivity, ST_K)
     results["LWout"] = LWout
 
     # Calculate net longwave radiation
-    LWnet = np.clip(LWin - LWout, 0, None)
+    LWnet = LWin - LWout
 
     # Constrain negative values of instantaneous net radiation
     Rn = np.clip(SWnet + LWnet, 0, None)

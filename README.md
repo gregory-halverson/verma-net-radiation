@@ -11,6 +11,10 @@ NASA Jet Propulsion Laboratory 329G
 
 This package is distributed using the pip package manager as `verma-net-radiation` with dashes.
 
+```
+pip install verma-net-radiation
+```
+
 ## Usage
 
 Import this package as `verma_net_radiation` with underscores.
@@ -107,8 +111,16 @@ Processes a DataFrame containing inputs for Verma net radiation calculations and
 output_df = verma_net_radiation_table(input_df)
 ```
 
-## References  
+## References
 
-Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016). Global surface net-radiation at 5 km from MODIS Terra. *Remote Sensing, 8*, 739. [Link](https://api.semanticscholar.org/CorpusID:1517647)
+**Brutsaert, W. (1975).** On a Derivable Formula for Long‐Wave Radiation from Clear Skies. *Water Resources Research, 11*(5), 742–744. https://doi.org/10.1029/WR011i005p00742  
+*Empirical model for clear-sky atmospheric emissivity, used in the calculation of incoming longwave radiation.*
 
-Brutsaert, W. (1975). On a Derivable Formula for Long‐Wave Radiation from Clear Skies. *Water Resources Research, 11*(5), 742–744. https://doi.org/10.1029/WR011i005p00742
+**Liou, K. N. (2002).** *An Introduction to Atmospheric Radiation* (2nd ed.). Academic Press. (See Eq. 2.3.1)  
+*Textbook reference for the Stefan-Boltzmann Law and radiative transfer theory, used for outgoing longwave radiation calculations.*
+
+**Stefan, J. (1879).** Über die Beziehung zwischen der Wärmestrahlung und der Temperatur. *Sitzungsberichte der mathematisch-naturwissenschaftlichen Classe der kaiserlichen Akademie der Wissenschaften*, 79, 391–428.  
+*Original publication of the Stefan-Boltzmann Law, fundamental to blackbody radiation calculations.*
+
+**Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016).** Global surface net-radiation at 5 km from MODIS Terra. *Remote Sensing, 8*, 739. [Link](https://api.semanticscholar.org/CorpusID:1517647)  
+*Primary methodology for net radiation and daily upscaling as implemented in this package.*
