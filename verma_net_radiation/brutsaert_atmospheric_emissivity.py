@@ -69,18 +69,28 @@ def brutsaert_atmospheric_emissivity(
     np.ndarray
         Atmospheric emissivity (unitless, typically 0.7–0.9 for clear sky).
     """
-    # Ensure inputs are numpy arrays for consistent broadcasting
-    Ea_Pa = np.asarray(Ea_Pa)
-    Ta_K = np.asarray(Ta_K)
+    np.save("Ea_Pa.npy", Ea_Pa)
+    np.save("Ta_K.npy", Ta_K)
+
+    # Track if inputs are scalars
+    Ea_Pa_is_scalar = np.isscalar(Ea_Pa)
+    Ta_K_is_scalar = np.isscalar(Ta_K)
+    # Convert to numpy arrays for calculation and ensure float dtype
+    Ea_Pa_arr = np.asarray(Ea_Pa, dtype=float)
+    Ta_K_arr = np.asarray(Ta_K, dtype=float)
+
 
     # Calculate the dimensionless water vapor parameter (η₁)
-    eta1 = 0.465 * Ea_Pa / Ta_K
+    eta1 = 0.465 * Ea_Pa_arr / Ta_K_arr
 
     # Argument for the square root in the exponent; must be non-negative
     eta2_arg = np.clip(1.2 + 3 * eta1, 0, None)
-
-    # For physical realism, set emissivity to NaN where the argument is negative
-    eta2 = np.where(eta2_arg >= 0, -np.sqrt(eta2_arg), np.nan)
+    
+    if np.isscalar(eta2_arg):
+        sqrt_eta2_arg = np.sqrt(eta2_arg) if eta2_arg >= 0 else np.nan
+    else:
+        sqrt_eta2_arg = np.where(eta2_arg >= 0, np.sqrt(eta2_arg), np.nan)
+    eta2 = -sqrt_eta2_arg
 
     # Exponential decay term representing atmospheric absorption
     eta3 = np.exp(eta2)
@@ -92,10 +102,8 @@ def brutsaert_atmospheric_emissivity(
         np.nan
     )
 
-    # If both inputs were floats, return a float, else return array
-    if isinstance(Ea_Pa, np.ndarray) and Ea_Pa.shape == () and isinstance(Ta_K, np.ndarray) and Ta_K.shape == ():
-        return float(atmospheric_emissivity)
-    elif atmospheric_emissivity.shape == ():
-        return float(atmospheric_emissivity)
+    # If both inputs were scalars, return a float, else return array
+    if Ea_Pa_is_scalar and Ta_K_is_scalar:
+        return float(np.squeeze(atmospheric_emissivity))
     else:
         return atmospheric_emissivity
