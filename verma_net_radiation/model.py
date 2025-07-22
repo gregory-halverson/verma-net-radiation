@@ -11,10 +11,10 @@ from .outgoing_longwave_radiation import outgoing_longwave_radiation
 STEFAN_BOLTZMAN_CONSTANT = 5.67036713e-8  # SI units watts per square meter per kelvin to the fourth
 
 def verma_net_radiation(
-        SWin: Union[Raster, np.ndarray, float],
-        albedo: Union[Raster, np.ndarray, float],
         ST_C: Union[Raster, np.ndarray, float],
         emissivity: Union[Raster, np.ndarray, float],
+        albedo: Union[Raster, np.ndarray, float],
+        SWin: Union[Raster, np.ndarray, float], 
         Ta_C: Union[Raster, np.ndarray, float],
         RH: Union[Raster, np.ndarray, float],
         cloud_mask: Union[Raster, np.ndarray, float, None] = None
@@ -72,7 +72,6 @@ def verma_net_radiation(
 
     # Constrain emissivity between 0 and 1
     emissivity = np.clip(emissivity, 0, 1)
-
 
     # Calculate outgoing longwave from land surface temperature and emissivity
     LWout = outgoing_longwave_radiation(emissivity, ST_K)
