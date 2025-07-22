@@ -63,8 +63,8 @@ def process_verma_net_radiation(
 
     # Calculate atmospheric emissivity
     eta1 = 0.465 * Ea_Pa / Ta_K
-    eta2 = -(1.2 + 3 * eta1) ** 0.5
-    eta2 = eta2.astype(float)
+    eta2_arg = 1.2 + 3 * eta1
+    eta2 = np.where(eta2_arg >= 0, -np.sqrt(eta2_arg), np.nan)
     eta3 = np.exp(eta2)
     atmospheric_emissivity = np.where(eta2 != 0, (1 - (1 + eta1) * eta3), np.nan)
 
