@@ -110,3 +110,5 @@ output_df = process_verma_net_radiation_table(input_df)
 ## References  
 
 Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016). Global surface net-radiation at 5 km from MODIS Terra. *Remote Sensing, 8*, 739. [Link](https://api.semanticscholar.org/CorpusID:1517647)
+
+Brutsaert, W. (1975). On a Derivable Formula for Long‐Wave Radiation from Clear Skies. *Water Resources Research, 11*(5), 742–744. https://doi.org/10.1029/WR011i005p00742
