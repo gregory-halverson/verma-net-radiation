@@ -55,31 +55,36 @@ results = verma_net_radiation(
 )
 ```
 
+
 ### `daily_Rn_integration_verma`
 
 **Description**:  
-Calculates daily net radiation using solar parameters.
+Integrates instantaneous net radiation (Rn) to daily average values using solar geometry parameters. Supports Raster, numpy array, or float inputs. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
 
 **Parameters**:
-- `Rn` (Union[Raster, np.ndarray]): Instantaneous net radiation (W/m²).
-- `hour_of_day` (Union[Raster, np.ndarray]): Hour of the day (0-24).
-- `doy` (Union[Raster, np.ndarray], optional): Day of the year (1-365).
-- `lat` (Union[Raster, np.ndarray], optional): Latitude in degrees.
-- `sunrise_hour` (Union[Raster, np.ndarray], optional): Hour of sunrise.
-- `daylight_hours` (Union[Raster, np.ndarray], optional): Total daylight hours.
+- `Rn_Wm2` (Union[Raster, np.ndarray, float]): Instantaneous net radiation (W/m²).
+- `hour_of_day` (Union[Raster, np.ndarray, float]): Hour of the day (0-24) when Rn is measured.
+- `day_of_year` (Union[Raster, np.ndarray, float], optional): Day of the year (1-365).
+- `lat` (Union[Raster, np.ndarray, float], optional): Latitude in degrees.
+- `sunrise_hour` (Union[Raster, np.ndarray, float], optional): Hour of sunrise (local time).
+- `daylight_hours` (Union[Raster, np.ndarray, float], optional): Total daylight hours.
 
 **Returns**:
-- `Raster`: Daily net radiation (W/m²).
+- `Union[Raster, np.ndarray, float]`: Daily average net radiation (W/m²).
+
+**Notes**:
+- To obtain total daily energy (J/m²), multiply the result by `(daylight_hours * 3600)`.
+- If `sunrise_hour` or `daylight_hours` are not provided, they are computed from `day_of_year` and `lat` using solar geometry.
 
 **Example**:
 ```python
 daily_Rn = daily_Rn_integration_verma(
-    Rn=Rn_array,
-    hour_of_day=hour_of_day_array,
-    doy=day_of_year_array,
-    lat=latitude_array,
-    sunrise_hour=sunrise_hour_array,
-    daylight_hours=daylight_hours_array
+  Rn_Wm2=Rn_array,
+  hour_of_day=hour_of_day_array,
+  day_of_year=day_of_year_array,
+  lat=latitude_array,
+  sunrise_hour=sunrise_hour_array,
+  daylight_hours=daylight_hours_array
 )
 ```
 

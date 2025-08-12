@@ -28,41 +28,43 @@ from rasters import Raster
 from sun_angles import daylight_from_SHA, sunrise_from_SHA, SHA_deg_from_DOY_lat
 
 def daily_Rn_integration_verma(
-        Rn: Union[Raster, np.ndarray, float],
+        Rn_Wm2: Union[Raster, np.ndarray, float],
         hour_of_day: Union[Raster, np.ndarray, float],
-        DOY: Union[Raster, np.ndarray, float] = None,
+        day_of_year: Union[Raster, np.ndarray, float] = None,
         lat: Union[Raster, np.ndarray, float] = None,
         sunrise_hour: Union[Raster, np.ndarray, float] = None,
         daylight_hours: Union[Raster, np.ndarray, float] = None
         ) -> Union[Raster, np.ndarray, float]:
     """
-    Calculate daily net radiation using solar parameters.
+    Integrate instantaneous net radiation (Rn) to daily average values using solar geometry parameters.
 
-    This represents the average rate of energy transfer from sunrise to sunset
-    in watts per square meter. To get the total energy transferred, multiply
-    by the number of seconds in the daylight period (daylight_hours * 3600).
-
-    Reference:
-        Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016). Global surface net-radiation at 5 km from MODIS Terra. Remote Sensing, 8, 739. https://api.semanticscholar.org/CorpusID:1517647
+    This function estimates the daily average net radiation (W/m²) from instantaneous measurements, accounting for solar position and daylight duration. It supports Raster, numpy array, or float inputs for geospatial and scientific workflows. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
 
     Parameters:
-        Rn (Union[Raster, np.ndarray, float]): Instantaneous net radiation (W/m²).
-        hour_of_day (Union[Raster, np.ndarray, float]): Hour of the day (0-24).
-        doy (Union[Raster, np.ndarray, float], optional): Day of the year (1-365).
+        Rn_Wm2 (Union[Raster, np.ndarray, float]): Instantaneous net radiation (W/m²).
+        hour_of_day (Union[Raster, np.ndarray, float]): Hour of the day (0-24) when Rn is measured.
+        day_of_year (Union[Raster, np.ndarray, float], optional): Day of the year (1-365).
         lat (Union[Raster, np.ndarray, float], optional): Latitude in degrees.
-        sunrise_hour (Union[Raster, np.ndarray, float], optional): Hour of sunrise.
+        sunrise_hour (Union[Raster, np.ndarray, float], optional): Hour of sunrise (local time).
         daylight_hours (Union[Raster, np.ndarray, float], optional): Total daylight hours.
 
     Returns:
-        Union[Raster, np.ndarray, float]: Daily net radiation (W/m²).
+        Union[Raster, np.ndarray, float]: Daily average net radiation (W/m²).
+
+    Notes:
+        - To obtain total daily energy (J/m²), multiply the result by (daylight_hours * 3600).
+        - If sunrise_hour or daylight_hours are not provided, they are computed from day_of_year and latitude using solar geometry.
+
+    Reference:
+        Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016). Global surface net-radiation at 5 km from MODIS Terra. Remote Sensing, 8, 739. https://api.semanticscholar.org/CorpusID:1517647
     """
-    if daylight_hours is None or sunrise_hour is None and DOY is not None and lat is not None:
-        sha_deg = SHA_deg_from_DOY_lat(DOY, lat)
+    if daylight_hours is None or sunrise_hour is None and day_of_year is not None and lat is not None:
+        sha_deg = SHA_deg_from_DOY_lat(day_of_year, lat)
         daylight_hours = daylight_from_SHA(sha_deg)
         sunrise_hour = sunrise_from_SHA(sha_deg)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        Rn_daily = 1.6 * Rn / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
+        Rn_daily = 1.6 * Rn_Wm2 / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
     
     return Rn_daily

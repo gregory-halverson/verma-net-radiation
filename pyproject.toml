@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "verma-net-radiation"
-version = "1.3.0"
+version = "1.4.0"
 description = "Net Radiation and Daily Upscaling Remote Sensing in Python"
 readme = "README.md"
 authors = [
@@ -35,8 +35,8 @@ dev = [
     "twine"
 ]
 
-[tool.setuptools.package-data]
-verma_net_radiation = ["*.txt"]
+[tool.setuptools.packages.find]
+exclude = ["notebooks*", "references*", "examples*", "testing*"]
 
 [project.urls]
 "Homepage" = "https://github.com/JPL-Evapotranspiration-Algorithms/verma-net-radiation"
