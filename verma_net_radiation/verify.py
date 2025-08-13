@@ -29,8 +29,8 @@ def verify() -> bool:
 
     # Columns to compare (model outputs)
     output_columns = [
-        'G', 'Rn_soil', 'LE_soil', 'Rn_canopy', 'PET',
-        'LE_canopy', 'LE_interception', 'LE'
+        "Rn_Wm2",
+        "Rn_daily_Wm2"
     ]
 
     # Compare each output column and collect mismatches
