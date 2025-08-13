@@ -79,22 +79,49 @@ def verma_net_radiation_table(
             - LWout: Outgoing longwave radiation (W/m²).
             - Rn: Instantaneous net radiation (W/m²).
     """
+    if "time_UTC" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: time_UTC")
+    
     time_UTC = pd.to_datetime(verma_net_radiation_inputs_df.time_UTC).tolist()
+    
+    if "geometry" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: geometry")
+    
     verma_net_radiation_inputs_df = ensure_geometry(verma_net_radiation_inputs_df)
     geometry = MultiPoint(verma_net_radiation_inputs_df.geometry)
 
-    SWin = np.array(verma_net_radiation_inputs_df.Rg)
+    if "SWin_Wm2" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: SWin_Wm2")
+    
+    SWin_Wm2 = np.array(verma_net_radiation_inputs_df.SWin_Wm2)
+
+    if "albedo" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: albedo")
+
     albedo = np.array(verma_net_radiation_inputs_df.albedo)
+
+    if "ST_C" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: ST_C")
+
     ST_C = np.array(verma_net_radiation_inputs_df.ST_C)
-    if 'EmisWB' in verma_net_radiation_inputs_df.columns:
-        emissivity = np.array(verma_net_radiation_inputs_df.EmisWB)
-    else:
-        emissivity = np.array(verma_net_radiation_inputs_df.emissivity)
+
+    if "emissivity" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: emissivity")
+
+    emissivity = np.array(verma_net_radiation_inputs_df.emissivity)
+
+    if "Ta_C" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: Ta_C")
+
     Ta_C = np.array(verma_net_radiation_inputs_df.Ta_C)
+
+    if "RH" not in verma_net_radiation_inputs_df:
+        raise ValueError("missing required column: RH")
+
     RH = np.array(verma_net_radiation_inputs_df.RH)
 
     results = verma_net_radiation(
-        SWin_Wm2=SWin,
+        SWin_Wm2=SWin_Wm2,
         albedo=albedo,
         ST_C=ST_C,
         emissivity=emissivity,
