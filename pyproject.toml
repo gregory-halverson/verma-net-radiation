@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [project]
 name = "verma-net-radiation"
-version = "1.5.0"
+version = "1.6.0"
 description = "Net Radiation and Daily Upscaling Remote Sensing in Python"
 readme = "README.md"
 authors = [
@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "check-distribution",
-    "ECOv002-calval-tables>=1.2.0",
+    "ECOv002-calval-tables>=1.4.0",
     "ECOv002-CMR>=1.1.0",
     "ECOv002-granules",
     "GEOS5FP>=1.2.1",
