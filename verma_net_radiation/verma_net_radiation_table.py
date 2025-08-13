@@ -23,10 +23,16 @@ Example Usage:
 >>> df_out = verma_net_radiation_table(df)
 """
 import numpy as np
+import pandas as pd
 from pandas import DataFrame
+
+from rasters import MultiPoint
+
 from .model import verma_net_radiation
 
-def verma_net_radiation_table(verma_net_radiation_inputs_df: DataFrame) -> DataFrame:
+def verma_net_radiation_table(
+        verma_net_radiation_inputs_df: DataFrame,
+        upscale_to_daily: bool = False) -> DataFrame:
     """
     Process a DataFrame containing inputs for Verma net radiation calculations.
 
@@ -52,6 +58,18 @@ def verma_net_radiation_table(verma_net_radiation_inputs_df: DataFrame) -> DataF
             - LWout: Outgoing longwave radiation (W/m²).
             - Rn: Instantaneous net radiation (W/m²).
     """
+    time_UTC = pd.to_datetime(verma_net_radiation_inputs_df.time_UTC).tolist()
+    
+    verma_net_radiation_inputs_df.geometry
+  
+    # Assuming df is your DataFrame and df.geometry contains shapely Points
+    geometry = MultiPoint(
+        x=np.array([geom.x for geom in verma_net_radiation_inputs_df.geometry]),
+        y=np.array([geom.y for geom in verma_net_radiation_inputs_df.geometry]),
+        crs=verma_net_radiation_inputs_df.crs
+    )
+
+    # print("geometry:", type(geometry), geometry)
 
     # Extract and convert each required input column to a numpy array for computation.
     # This ensures compatibility with the underlying model functions and vectorized operations.
@@ -64,18 +82,22 @@ def verma_net_radiation_table(verma_net_radiation_inputs_df: DataFrame) -> DataF
         emissivity = np.array(verma_net_radiation_inputs_df.EmisWB)
     else:
         emissivity = np.array(verma_net_radiation_inputs_df.emissivity)
+
     Ta_C = np.array(verma_net_radiation_inputs_df.Ta_C)  # Air temperature (Celsius)
     RH = np.array(verma_net_radiation_inputs_df.RH)  # Relative humidity (fractional)
 
     # Call the main model function to compute all radiation components.
     # The function returns a dictionary with keys for each component.
     results = verma_net_radiation(
-        SWin=SWin,
+        SWin_Wm2=SWin,
         albedo=albedo,
         ST_C=ST_C,
         emissivity=emissivity,
         Ta_C=Ta_C,
         RH=RH,
+        time_UTC=time_UTC,
+        geometry=geometry,
+        upscale_to_daily=upscale_to_daily
     )
 
     # Create a copy of the input DataFrame to avoid modifying the original.

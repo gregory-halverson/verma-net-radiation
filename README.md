@@ -21,18 +21,23 @@ Import this package as `verma_net_radiation` with underscores.
 
 This module provides functions to calculate instantaneous net radiation and its components, integrate daily net radiation, and process radiation data from a DataFrame. Below is a detailed explanation of each function and how to use them.
 
+
 ### `verma_net_radiation`
 
 **Description**:  
 Calculates instantaneous net radiation and its components based on input parameters.
 
 **Parameters**:
-- `SWin` (Union[Raster, np.ndarray, float]): Incoming shortwave radiation (W/m²).
-- `albedo` (Union[Raster, np.ndarray, float]): Surface albedo (unitless, constrained between 0 and 1).
 - `ST_C` (Union[Raster, np.ndarray, float]): Surface temperature in Celsius.
 - `emissivity` (Union[Raster, np.ndarray, float]): Surface emissivity (unitless, constrained between 0 and 1).
-- `Ta_C` (Union[Raster, np.ndarray, float]): Air temperature in Celsius.
-- `RH` (Union[Raster, np.ndarray, float]): Relative humidity (fractional, e.g., 0.5 for 50%).
+- `albedo` (Union[Raster, np.ndarray, float]): Surface albedo (unitless, constrained between 0 and 1).
+- `SWin_Wm2` (Union[Raster, np.ndarray, float], optional): Incoming shortwave radiation (W/m²). If not provided, will be retrieved from GEOS-5 FP if geometry and time_UTC are given.
+- `Ta_C` (Union[Raster, np.ndarray, float], optional): Air temperature in Celsius. If not provided, will be retrieved from GEOS-5 FP if geometry and time_UTC are given.
+- `RH` (Union[Raster, np.ndarray, float], optional): Relative humidity (fractional, e.g., 0.5 for 50%). If not provided, will be retrieved from GEOS-5 FP if geometry and time_UTC are given.
+- `geometry` (RasterGeometry, optional): Spatial geometry for GEOS-5 FP retrievals.
+- `time_UTC` (datetime, optional): UTC time for GEOS-5 FP retrievals.
+- `GEOS5FP_connection` (GEOS5FP, optional): Existing GEOS5FP connection to use for data retrievals.
+- `resampling` (str, optional): Resampling method for GEOS-5 FP data retrievals.
 - `cloud_mask` (Union[Raster, np.ndarray, float], optional): Boolean mask indicating cloudy areas (True for cloudy).
 
 **Returns**:
@@ -45,13 +50,13 @@ A dictionary containing:
 **Example**:
 ```python
 results = verma_net_radiation(
-    SWin=SWin_array,
-    albedo=albedo_array,
-    ST_C=surface_temp_array,
-    emissivity=emissivity_array,
-    Ta_C=air_temp_array,
-    RH=relative_humidity_array,
-    cloud_mask=cloud_mask_array
+  ST_C=surface_temp_array,
+  emissivity=emissivity_array,
+  albedo=albedo_array,
+  SWin_Wm2=SWin_array,
+  Ta_C=air_temp_array,
+  RH=relative_humidity_array,
+  cloud_mask=cloud_mask_array
 )
 ```
 
