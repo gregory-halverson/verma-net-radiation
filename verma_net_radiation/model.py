@@ -62,7 +62,7 @@ def verma_net_radiation(
         GEOS5FP_connection: GEOS5FP = None,
         resampling: str = RESAMPLING_METHOD,
         cloud_mask: Union[Raster, np.ndarray, float, None] = None,
-        upscale_to_daily: bool = False,
+        upscale_to_daily: bool = UPSCALE_TO_DAILY,
         ) -> Dict[str, Union[Raster, np.ndarray, float]]:
     """
     Calculate instantaneous net radiation and its components.
@@ -186,7 +186,7 @@ def verma_net_radiation(
     check_distribution(Rn_Wm2, "Rn_Wm2")
     results["Rn_Wm2"] = Rn_Wm2
  
-    if upscale_to_daily:
+    if upscale_to_daily and time_UTC is not None:
         Rn_daily_Wm2 = daily_Rn_integration_verma(
             Rn_Wm2=Rn_Wm2,
             geometry=geometry,

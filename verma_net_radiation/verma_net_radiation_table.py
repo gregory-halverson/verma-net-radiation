@@ -28,11 +28,12 @@ from pandas import DataFrame
 
 from rasters import MultiPoint
 
+from .constants import *
 from .model import verma_net_radiation
 
 def verma_net_radiation_table(
         verma_net_radiation_inputs_df: DataFrame,
-        upscale_to_daily: bool = False) -> DataFrame:
+        upscale_to_daily: bool = UPSCALE_TO_DAILY) -> DataFrame:
     """
     Process a DataFrame containing inputs for Verma net radiation calculations.
 
