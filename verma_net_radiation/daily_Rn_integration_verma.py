@@ -22,6 +22,7 @@ Example Usage:
 """
 
 from datetime import datetime
+from dateutil import parser
 from typing import Union
 import warnings
 from geopandas import GeoSeries
@@ -30,7 +31,7 @@ import numpy as np
 from rasters import Raster
 from rasters import SpatialGeometry
 
-from solar_apparent_time import calculate_solar_day_of_year
+from solar_apparent_time import calculate_solar_day_of_year, calculate_solar_hour_of_day
 from sun_angles import daylight_from_SHA, sunrise_from_SHA, SHA_deg_from_DOY_lat
 
 def daily_Rn_integration_verma(
@@ -67,6 +68,17 @@ def daily_Rn_integration_verma(
     Reference:
         Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016). Global surface net-radiation at 5 km from MODIS Terra. Remote Sensing, 8, 739. https://api.semanticscholar.org/CorpusID:1517647
     """
+    if Rn_Wm2 is None:
+        raise ValueError("Instantaneous net radiation (Rn) must be provided.")
+
+    # Handle string or list of strings for time_UTC
+    if isinstance(time_UTC, str):
+        time_UTC = parser.parse(time_UTC)
+    elif isinstance(time_UTC, list):
+        time_UTC = [parser.parse(t) if isinstance(t, str) else t for t in time_UTC]
+    elif isinstance(time_UTC, np.ndarray) and time_UTC.dtype.type is np.str_:
+        time_UTC = np.array([parser.parse(t) for t in time_UTC])
+
     # If latitude is not provided, try to extract from geometry
     if lat is None and isinstance(geometry, SpatialGeometry):
         lat = geometry.lat
@@ -92,14 +104,6 @@ def daily_Rn_integration_verma(
 
     # If day_of_year is not provided, try to infer from time_UTC
     if day_of_year is None and time_UTC is not None:
-        # Handle string or list of strings for time_UTC
-        if isinstance(time_UTC, str):
-            time_UTC = parser.parse(time_UTC)
-        elif isinstance(time_UTC, list):
-            time_UTC = [parser.parse(t) if isinstance(t, str) else t for t in time_UTC]
-        elif isinstance(time_UTC, np.ndarray) and time_UTC.dtype.type is np.str_:
-            time_UTC = np.array([parser.parse(t) for t in time_UTC])
-
         day_of_year = calculate_solar_day_of_year(
             time_UTC=time_UTC,
             geometry=geometry,
@@ -107,12 +111,23 @@ def daily_Rn_integration_verma(
             lon=lon
         )    
 
+    if hour_of_day is None and time_UTC is not None:
+        hour_of_day = calculate_solar_hour_of_day(
+            time_UTC=time_UTC,
+            geometry=geometry,
+            lat=lat,
+            lon=lon
+        )
+
     if daylight_hours is None or sunrise_hour is None and day_of_year is not None and lat is not None:
-        # print(type(day_of_year), day_of_year)
-        # print(type(lat), lat)
         sha_deg = SHA_deg_from_DOY_lat(day_of_year, lat)
         daylight_hours = daylight_from_SHA(sha_deg)
         sunrise_hour = sunrise_from_SHA(sha_deg)
+
+    print("Rn_Wm2", Rn_Wm2.shape)
+    print("hour_of_day", hour_of_day.shape)
+    print("sunrise_hour", sunrise_hour.shape)
+    print("daylight_hours", daylight_hours.shape)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")

@@ -23,7 +23,7 @@ dependencies = [
     "numpy",
     "rasters",
     "seaborn",
-    "solar-apparent-time",
+    "solar-apparent-time>=1.5.3",
     "sun-angles>=1.2.0"
 ]
 requires-python = ">=3.10"
