@@ -4,3 +4,4 @@ from .verma_net_radiation_table import verma_net_radiation_table
 from .incoming_longwave_radiation import incoming_longwave_radiation
 from .outgoing_longwave_radiation import outgoing_longwave_radiation
 from .brutsaert_atmospheric_emissivity import brutsaert_atmospheric_emissivity
+from .verify import verify

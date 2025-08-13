@@ -38,6 +38,9 @@ dev = [
     "twine"
 ]
 
+[tool.setuptools.package-data]
+verma_net_radiation = ["*.csv"]
+
 [tool.setuptools.packages.find]
 exclude = ["notebooks*", "references*", "examples*", "testing*"]
 

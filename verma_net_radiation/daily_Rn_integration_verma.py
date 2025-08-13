@@ -124,10 +124,10 @@ def daily_Rn_integration_verma(
         daylight_hours = daylight_from_SHA(sha_deg)
         sunrise_hour = sunrise_from_SHA(sha_deg)
 
-    print("Rn_Wm2", Rn_Wm2.shape)
-    print("hour_of_day", hour_of_day.shape)
-    print("sunrise_hour", sunrise_hour.shape)
-    print("daylight_hours", daylight_hours.shape)
+    # print("Rn_Wm2", Rn_Wm2.shape)
+    # print("hour_of_day", hour_of_day.shape)
+    # print("sunrise_hour", sunrise_hour.shape)
+    # print("daylight_hours", daylight_hours.shape)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
