@@ -40,7 +40,7 @@ import numpy as np
 import warnings
 from datetime import datetime
 from rasters import Raster, RasterGeometry
-
+import logging
 from check_distribution import check_distribution
 from GEOS5FP import GEOS5FP
 
@@ -49,6 +49,8 @@ from .brutsaert_atmospheric_emissivity import brutsaert_atmospheric_emissivity
 from .incoming_longwave_radiation import incoming_longwave_radiation
 from .outgoing_longwave_radiation import outgoing_longwave_radiation
 from .daily_Rn_integration_verma import daily_Rn_integration_verma
+
+logger = logging.getLogger(__name__)
 
 def verma_net_radiation(
         ST_C: Union[Raster, np.ndarray, float],
@@ -94,7 +96,12 @@ def verma_net_radiation(
             - "LWnet_Wm2": Net longwave radiation (W/m²).
             - "Rn_Wm2": Instantaneous net radiation (W/m²).
     """
+    from pytictoc import TicToc
+    t = TicToc()
+    t.tic()
     results = {}
+
+    logger.info("starting Verma net radiation processing")
 
     if geometry is None and isinstance(ST_C, Raster):
         geometry = ST_C.geometry
@@ -108,7 +115,6 @@ def verma_net_radiation(
 
     # Retrieve incoming shortwave if not provided
     if SWin_Wm2 is None and spatial_temporal_processing:
-        # print("Retrieving incoming shortwave radiation (SWin) from GEOS-5 FP...")
         SWin_Wm2 = GEOS5FP_connection.SWin(
             time_UTC=time_UTC,
             geometry=geometry,
@@ -200,5 +206,8 @@ def verma_net_radiation(
         for key, value in results.items():
             if not isinstance(results[key], Raster):
                 results[key] = Raster(value, geometry=geometry)
+
+    elapsed = t.tocvalue()
+    logger.info(f"Verma net radiation processing complete in {elapsed:.2f} seconds")
 
     return results
