@@ -25,14 +25,35 @@ Example Usage:
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
-
 from rasters import MultiPoint
+from geopandas import GeoSeries
+import geopandas as gpd
+from shapely.geometry import Point
 
+from .constants import *
 from .model import verma_net_radiation
+
+def ensure_geometry(df):
+    if isinstance(df.geometry.iloc[0], str):
+        # Try to parse "x, y" or "POINT (x y)" formats
+        def parse_geom(s):
+            s = s.strip()
+            if s.startswith("POINT"):
+                coords = s.replace("POINT", "").replace("(", "").replace(")", "").strip().split()
+                return Point(float(coords[0]), float(coords[1]))
+            elif "," in s:
+                coords = [float(c) for c in s.split(",")]
+                return Point(coords[0], coords[1])
+            else:
+                coords = [float(c) for c in s.split()]
+                return Point(coords[0], coords[1])
+        df = df.copy()
+        df['geometry'] = df['geometry'].apply(parse_geom)
+    return df
 
 def verma_net_radiation_table(
         verma_net_radiation_inputs_df: DataFrame,
-        upscale_to_daily: bool = False) -> DataFrame:
+        upscale_to_daily: bool = UPSCALE_TO_DAILY) -> DataFrame:
     """
     Process a DataFrame containing inputs for Verma net radiation calculations.
 
@@ -59,35 +80,19 @@ def verma_net_radiation_table(
             - Rn: Instantaneous net radiation (W/m²).
     """
     time_UTC = pd.to_datetime(verma_net_radiation_inputs_df.time_UTC).tolist()
-    
-    verma_net_radiation_inputs_df.geometry
-  
-    # Assuming df is your DataFrame and df.geometry contains shapely Points
-    geometry = MultiPoint(
-        x=np.array([geom.x for geom in verma_net_radiation_inputs_df.geometry]),
-        y=np.array([geom.y for geom in verma_net_radiation_inputs_df.geometry]),
-        crs=verma_net_radiation_inputs_df.crs
-    )
+    verma_net_radiation_inputs_df = ensure_geometry(verma_net_radiation_inputs_df)
+    geometry = MultiPoint(verma_net_radiation_inputs_df.geometry)
 
-    # print("geometry:", type(geometry), geometry)
-
-    # Extract and convert each required input column to a numpy array for computation.
-    # This ensures compatibility with the underlying model functions and vectorized operations.
-    SWin = np.array(verma_net_radiation_inputs_df.Rg)  # Incoming shortwave radiation
-    albedo = np.array(verma_net_radiation_inputs_df.albedo)  # Surface albedo
-    ST_C = np.array(verma_net_radiation_inputs_df.ST_C)  # Surface temperature (Celsius)
-    # Note: The input column for emissivity may be named 'EmisWB' in the DataFrame.
-    # If so, use that column; otherwise, fall back to 'emissivity' if present.
+    SWin = np.array(verma_net_radiation_inputs_df.Rg)
+    albedo = np.array(verma_net_radiation_inputs_df.albedo)
+    ST_C = np.array(verma_net_radiation_inputs_df.ST_C)
     if 'EmisWB' in verma_net_radiation_inputs_df.columns:
         emissivity = np.array(verma_net_radiation_inputs_df.EmisWB)
     else:
         emissivity = np.array(verma_net_radiation_inputs_df.emissivity)
+    Ta_C = np.array(verma_net_radiation_inputs_df.Ta_C)
+    RH = np.array(verma_net_radiation_inputs_df.RH)
 
-    Ta_C = np.array(verma_net_radiation_inputs_df.Ta_C)  # Air temperature (Celsius)
-    RH = np.array(verma_net_radiation_inputs_df.RH)  # Relative humidity (fractional)
-
-    # Call the main model function to compute all radiation components.
-    # The function returns a dictionary with keys for each component.
     results = verma_net_radiation(
         SWin_Wm2=SWin,
         albedo=albedo,
@@ -100,12 +105,8 @@ def verma_net_radiation_table(
         upscale_to_daily=upscale_to_daily
     )
 
-    # Create a copy of the input DataFrame to avoid modifying the original.
     verma_net_radiation_outputs_df = verma_net_radiation_inputs_df.copy()
-
-    # Add each calculated radiation component as a new column in the output DataFrame.
     for key, value in results.items():
         verma_net_radiation_outputs_df[key] = value
 
-    # Return the DataFrame with appended results.
     return verma_net_radiation_outputs_df
