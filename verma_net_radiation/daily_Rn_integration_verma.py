@@ -26,11 +26,12 @@ from typing import Union
 import warnings
 from geopandas import GeoSeries
 import numpy as np
+from dateutil import parser
 
 from rasters import Raster
 from rasters import SpatialGeometry
 
-from solar_apparent_time import calculate_solar_day_of_year
+from solar_apparent_time import calculate_solar_day_of_year, calculate_solar_hour_of_day
 from sun_angles import daylight_from_SHA, sunrise_from_SHA, SHA_deg_from_DOY_lat
 
 def daily_Rn_integration_verma(
@@ -107,15 +108,59 @@ def daily_Rn_integration_verma(
             lon=lon
         )    
 
-    if daylight_hours is None or sunrise_hour is None and day_of_year is not None and lat is not None:
-        # print(type(day_of_year), day_of_year)
-        # print(type(lat), lat)
+    # If hour_of_day is not provided, try to calculate from time_UTC and geometry
+    if hour_of_day is None and time_UTC is not None:
+        # Convert pandas series to numpy arrays to avoid broadcasting issues
+        lat_array = np.asarray(lat) if lat is not None else None
+        lon_array = np.asarray(lon) if lon is not None else None
+        
+        hour_of_day = calculate_solar_hour_of_day(
+            time_UTC=time_UTC,
+            geometry=None,
+            lat=lat_array,
+            lon=lon_array
+        )
+        
+        # If result is 2D (still a broadcasting issue in solar-apparent-time), extract diagonal
+        if hasattr(hour_of_day, 'shape') and len(hour_of_day.shape) == 2:
+            hour_of_day = np.diag(hour_of_day)
+
+    # Calculate sunrise and daylight hours if not provided
+    if (daylight_hours is None or sunrise_hour is None) and day_of_year is not None and lat is not None:
         sha_deg = SHA_deg_from_DOY_lat(day_of_year, lat)
-        daylight_hours = daylight_from_SHA(sha_deg)
-        sunrise_hour = sunrise_from_SHA(sha_deg)
+        if daylight_hours is None:
+            daylight_hours = daylight_from_SHA(sha_deg)
+        if sunrise_hour is None:
+            sunrise_hour = sunrise_from_SHA(sha_deg)
+
+    # Validate that we have all required parameters
+    if hour_of_day is None or sunrise_hour is None or daylight_hours is None:
+        warnings.warn("Could not calculate all required solar parameters. Returning NaN values.")
+        if hasattr(Rn_Wm2, 'shape'):
+            return np.full_like(Rn_Wm2, np.nan)
+        else:
+            return np.nan
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        Rn_daily = 1.6 * Rn_Wm2 / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
+        # Calculate daily net radiation
+        denominator = np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / daylight_hours)
+        
+        # Convert to numpy arrays to avoid pandas broadcasting issues
+        Rn_array = np.asarray(Rn_Wm2)
+        denom_array = np.asarray(denominator)
+        
+        # Handle cases where denominator is zero or negative (invalid solar geometry)
+        if hasattr(denom_array, 'shape'):
+            # Array case
+            mask = (denom_array <= 0) | np.isnan(denom_array) | np.isinf(denom_array)
+            Rn_daily = 1.6 * Rn_array / denom_array
+            Rn_daily = np.where(mask, np.nan, Rn_daily)
+        else:
+            # Scalar case
+            if denom_array <= 0 or np.isnan(denom_array) or np.isinf(denom_array):
+                Rn_daily = np.nan
+            else:
+                Rn_daily = 1.6 * Rn_array / denom_array
     
     return Rn_daily
