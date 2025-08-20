@@ -25,7 +25,7 @@ def verify() -> bool:
     output_df = pd.read_csv(output_file_path)
 
     # Run the model on the input table
-    model_df = verma_net_radiation_table(input_df)
+    model_df = verma_net_radiation_table(input_df, upscale_to_daylight=True)
 
     # Columns to compare (model outputs)
     output_columns = [
