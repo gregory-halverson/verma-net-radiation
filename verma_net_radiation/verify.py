@@ -56,16 +56,16 @@ def verify() -> bool:
             }
             mismatches.append((col, 'value_mismatch', mismatch_info))
     if mismatches:
-        print("Verification failed. Details:")
+        error_msgs = ["Verification failed. Details:"]
         for col, reason, info in mismatches:
             if reason == 'missing_column':
-                print(f"  Missing column: {col}")
+                error_msgs.append(f"  Missing column: {col}")
             elif reason == 'value_mismatch':
-                print(f"  Mismatch in column: {col}")
-                print(f"    Max difference: {info['max_diff']}")
-                print(f"    Indices off: {info['indices']}")
-                print(f"    Model values: {info['model_values']}")
-                print(f"    Reference values: {info['ref_values']}")
-                print(f"    Differences: {info['diffs']}")
-        return False
+                error_msgs.append(f"  Mismatch in column: {col}")
+                error_msgs.append(f"    Max difference: {info['max_diff']}")
+                error_msgs.append(f"    Indices off: {info['indices']}")
+                error_msgs.append(f"    Model values: {info['model_values']}")
+                error_msgs.append(f"    Reference values: {info['ref_values']}")
+                error_msgs.append(f"    Differences: {info['diffs']}")
+        raise RuntimeError("\n".join(error_msgs))
     return True
