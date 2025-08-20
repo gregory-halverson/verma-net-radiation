@@ -48,7 +48,7 @@ from .constants import *
 from .brutsaert_atmospheric_emissivity import brutsaert_atmospheric_emissivity
 from .incoming_longwave_radiation import incoming_longwave_radiation
 from .outgoing_longwave_radiation import outgoing_longwave_radiation
-from .daily_Rn_integration_verma import daily_Rn_integration_verma
+from .daylight_Rn_integration_verma import daylight_Rn_integration_verma
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ def verma_net_radiation(
         GEOS5FP_connection: GEOS5FP = None,
         resampling: str = RESAMPLING_METHOD,
         cloud_mask: Union[Raster, np.ndarray, float, None] = None,
-        upscale_to_daily: bool = UPSCALE_TO_DAILY,
+    upscale_to_daylight: bool = UPSCALE_TO_DAYLIGHT,
         ) -> Dict[str, Union[Raster, np.ndarray, float]]:
     """
     Calculate instantaneous net radiation and its components.
@@ -192,15 +192,15 @@ def verma_net_radiation(
     check_distribution(Rn_Wm2, "Rn_Wm2")
     results["Rn_Wm2"] = Rn_Wm2
  
-    if upscale_to_daily and time_UTC is not None:
-        Rn_daily_Wm2 = daily_Rn_integration_verma(
+    if upscale_to_daylight and time_UTC is not None:
+        Rn_daylight_Wm2 = daylight_Rn_integration_verma(
             Rn_Wm2=Rn_Wm2,
             geometry=geometry,
             time_UTC=time_UTC
         )
 
-        check_distribution(Rn_daily_Wm2, "Rn_daily_Wm2")
-        results["Rn_daily_Wm2"] = Rn_daily_Wm2
+        check_distribution(Rn_daylight_Wm2, "Rn_daylight_Wm2")
+        results["Rn_daylight_Wm2"] = Rn_daylight_Wm2
 
     if raster_processing:
         for key, value in results.items():

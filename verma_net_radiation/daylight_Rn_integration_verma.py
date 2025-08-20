@@ -1,13 +1,13 @@
 """
-Daily Net Radiation Integration (Verma et al., 2016)
+Daylight Net Radiation Integration (Verma et al., 2016)
 ====================================================
 
-This module provides a function to integrate instantaneous net radiation to daily values using solar geometry parameters.
+This module provides a function to integrate instantaneous net radiation to daylight values using solar geometry parameters.
 It is based on the methodology described in Verma et al. (2016) for global surface net radiation estimation from MODIS Terra data.
 
 Key Features:
 -------------
-- Integrates instantaneous net radiation (Rn) to daily values using hour of day, latitude, and solar angles.
+- Integrates instantaneous net radiation (Rn) to daylight values using hour of day, latitude, and solar angles.
 - Accepts Raster, numpy array, or float inputs for geospatial and scientific workflows.
 - Handles calculation of daylight hours and sunrise time if not provided.
 
@@ -17,8 +17,8 @@ Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Mo
 
 Example Usage:
 --------------
->>> from daily_Rn_integration_verma import daily_Rn_integration_verma
->>> Rn_daily = daily_Rn_integration_verma(Rn=400, hour_of_day=12, doy=180, lat=35)
+>>> from daylight_Rn_integration_verma import daylight_Rn_integration_verma
+>>> Rn_daylight = daylight_Rn_integration_verma(Rn=400, hour_of_day=12, doy=180, lat=35)
 """
 
 from datetime import datetime
@@ -34,7 +34,7 @@ from rasters import SpatialGeometry
 from solar_apparent_time import calculate_solar_day_of_year, calculate_solar_hour_of_day
 from sun_angles import daylight_from_SHA, sunrise_from_SHA, SHA_deg_from_DOY_lat
 
-def daily_Rn_integration_verma(
+def daylight_Rn_integration_verma(
         Rn_Wm2: Union[Raster, np.ndarray, float],
         time_UTC: Union[datetime, str, list, np.ndarray] = None,
         geometry: Union[SpatialGeometry, GeoSeries] = None,
@@ -46,9 +46,9 @@ def daily_Rn_integration_verma(
         daylight_hours: Union[Raster, np.ndarray, float] = None
         ) -> Union[Raster, np.ndarray, float]:
     """
-    Integrate instantaneous net radiation (Rn) to daily average values using solar geometry parameters.
+    Integrate instantaneous net radiation (Rn) to daylight average values using solar geometry parameters.
 
-    This function estimates the daily average net radiation (W/m²) from instantaneous measurements, accounting for solar position and daylight duration. It supports Raster, numpy array, or float inputs for geospatial and scientific workflows. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
+    This function estimates the daylight average net radiation (W/m²) from instantaneous measurements, accounting for solar position and daylight duration. It supports Raster, numpy array, or float inputs for geospatial and scientific workflows. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
 
     Parameters:
         Rn_Wm2 (Union[Raster, np.ndarray, float]): Instantaneous net radiation (W/m²).
@@ -59,10 +59,10 @@ def daily_Rn_integration_verma(
         daylight_hours (Union[Raster, np.ndarray, float], optional): Total daylight hours.
 
     Returns:
-        Union[Raster, np.ndarray, float]: Daily average net radiation (W/m²).
+        Union[Raster, np.ndarray, float]: Daylight average net radiation (W/m²).
 
     Notes:
-        - To obtain total daily energy (J/m²), multiply the result by (daylight_hours * 3600).
+        - To obtain total daylight energy (J/m²), multiply the result by (daylight_hours * 3600).
         - If sunrise_hour or daylight_hours are not provided, they are computed from day_of_year and latitude using solar geometry.
 
     Reference:
@@ -131,6 +131,9 @@ def daily_Rn_integration_verma(
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
-        Rn_daily = 1.6 * Rn_Wm2 / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
+        Rn_daylight = 1.6 * Rn_Wm2 / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
     
-    return Rn_daily
+    return Rn_daylight
+
+# For backward compatibility, but prefer using daylight_Rn_integration_verma
+daylight_Rn_integration_verma = daylight_Rn_integration_verma
