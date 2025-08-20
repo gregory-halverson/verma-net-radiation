@@ -30,7 +30,7 @@ def verify() -> bool:
     # Columns to compare (model outputs)
     output_columns = [
         "Rn_Wm2",
-        "Rn_daily_Wm2"
+        "Rn_daylight_Wm2"
     ]
 
     # Compare each output column and collect mismatches
