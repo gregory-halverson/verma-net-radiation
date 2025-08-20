@@ -53,7 +53,7 @@ def ensure_geometry(df):
 
 def verma_net_radiation_table(
         verma_net_radiation_inputs_df: DataFrame,
-        upscale_to_daily: bool = UPSCALE_TO_DAILY) -> DataFrame:
+    upscale_to_daylight: bool = UPSCALE_TO_DAYLIGHT) -> DataFrame:
     """
     Process a DataFrame containing inputs for Verma net radiation calculations.
 
@@ -129,7 +129,7 @@ def verma_net_radiation_table(
         RH=RH,
         time_UTC=time_UTC,
         geometry=geometry,
-        upscale_to_daily=upscale_to_daily
+        upscale_to_daylight=upscale_to_daylight
     )
 
     verma_net_radiation_outputs_df = verma_net_radiation_inputs_df.copy()

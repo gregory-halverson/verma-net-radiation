@@ -1,6 +1,7 @@
-# Net Radiation and Daily Upscaling Remote Sensing in Python
 
-This Python package implements the net radiation and daily upscaling methods described in Verma et al 2016.
+# Net Radiation and Daylight Upscaling Remote Sensing in Python
+
+This Python package implements the net radiation and daylight upscaling methods described in Verma et al 2016.
 
 [Gregory H. Halverson](https://github.com/gregory-halverson-jpl) (they/them)<br>
 [gregory.h.halverson@jpl.nasa.gov](mailto:gregory.h.halverson@jpl.nasa.gov)<br>
@@ -19,13 +20,14 @@ pip install verma-net-radiation
 
 Import this package as `verma_net_radiation` with underscores.
 
-This module provides functions to calculate instantaneous net radiation and its components, integrate daily net radiation, and process radiation data from a DataFrame. Below is a detailed explanation of each function and how to use them.
+
+This module provides functions to calculate instantaneous net radiation and its components, integrate daylight net radiation, and process radiation data from a DataFrame. Below is a detailed explanation of each function and how to use them.
 
 
 ### `verma_net_radiation`
 
 **Description**:  
-Calculates instantaneous net radiation and its components based on input parameters.
+Calculates instantaneous net radiation and its components based on input parameters. Optionally upscales to daylight average net radiation if `upscale_to_daylight=True`.
 
 **Parameters**:
 - `ST_C` (Union[Raster, np.ndarray, float]): Surface temperature in Celsius.
@@ -39,13 +41,15 @@ Calculates instantaneous net radiation and its components based on input paramet
 - `GEOS5FP_connection` (GEOS5FP, optional): Existing GEOS5FP connection to use for data retrievals.
 - `resampling` (str, optional): Resampling method for GEOS-5 FP data retrievals.
 - `cloud_mask` (Union[Raster, np.ndarray, float], optional): Boolean mask indicating cloudy areas (True for cloudy).
+- `upscale_to_daylight` (bool, optional): If True, returns daylight average net radiation as well.
 
 **Returns**:
 A dictionary containing:
-- `"SWout"`: Outgoing shortwave radiation (W/m²).
-- `"LWin"`: Incoming longwave radiation (W/m²).
-- `"LWout"`: Outgoing longwave radiation (W/m²).
-- `"Rn"`: Instantaneous net radiation (W/m²).
+- `"SWout_Wm2"`: Outgoing shortwave radiation (W/m²).
+- `"LWin_Wm2"`: Incoming longwave radiation (W/m²).
+- `"LWout_Wm2"`: Outgoing longwave radiation (W/m²).
+- `"Rn_Wm2"`: Instantaneous net radiation (W/m²).
+- `"Rn_daylight_Wm2"`: Daylight average net radiation (W/m², only if `upscale_to_daylight=True`).
 
 **Example**:
 ```python
@@ -56,15 +60,16 @@ results = verma_net_radiation(
   SWin_Wm2=SWin_array,
   Ta_C=air_temp_array,
   RH=relative_humidity_array,
-  cloud_mask=cloud_mask_array
+  cloud_mask=cloud_mask_array,
+  upscale_to_daylight=True
 )
 ```
 
 
-### `daily_Rn_integration_verma`
+### `daylight_Rn_integration_verma`
 
 **Description**:  
-Integrates instantaneous net radiation (Rn) to daily average values using solar geometry parameters. Supports Raster, numpy array, or float inputs. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
+Integrates instantaneous net radiation (Rn) to daylight average values using solar geometry parameters. Supports Raster, numpy array, or float inputs. If sunrise time or daylight hours are not provided, they are calculated from day of year and latitude.
 
 **Parameters**:
 - `Rn_Wm2` (Union[Raster, np.ndarray, float]): Instantaneous net radiation (W/m²).
@@ -75,15 +80,15 @@ Integrates instantaneous net radiation (Rn) to daily average values using solar 
 - `daylight_hours` (Union[Raster, np.ndarray, float], optional): Total daylight hours.
 
 **Returns**:
-- `Union[Raster, np.ndarray, float]`: Daily average net radiation (W/m²).
+- `Union[Raster, np.ndarray, float]`: Daylight average net radiation (W/m²).
 
 **Notes**:
-- To obtain total daily energy (J/m²), multiply the result by `(daylight_hours * 3600)`.
+- To obtain total daylight energy (J/m²), multiply the result by `(daylight_hours * 3600)`.
 - If `sunrise_hour` or `daylight_hours` are not provided, they are computed from `day_of_year` and `lat` using solar geometry.
 
 **Example**:
 ```python
-daily_Rn = daily_Rn_integration_verma(
+Rn_daylight = daylight_Rn_integration_verma(
   Rn_Wm2=Rn_array,
   hour_of_day=hour_of_day_array,
   day_of_year=day_of_year_array,
@@ -133,4 +138,4 @@ output_df = verma_net_radiation_table(input_df)
 *Original publication of the Stefan-Boltzmann Law, fundamental to blackbody radiation calculations.*
 
 **Verma, M., Fisher, J. B., Mallick, K., Ryu, Y., Kobayashi, H., Guillaume, A., Moore, G., Ramakrishnan, L., Hendrix, V. C., Wolf, S., Sikka, M., Kiely, G., Wohlfahrt, G., Gielen, B., Roupsard, O., Toscano, P., Arain, A., & Cescatti, A. (2016).** Global surface net-radiation at 5 km from MODIS Terra. *Remote Sensing, 8*, 739. [Link](https://api.semanticscholar.org/CorpusID:1517647)  
-*Primary methodology for net radiation and daily upscaling as implemented in this package.*
+*Primary methodology for net radiation and daylight upscaling as implemented in this package.*
