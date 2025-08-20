@@ -34,7 +34,7 @@ from rasters import SpatialGeometry
 from solar_apparent_time import calculate_solar_day_of_year, calculate_solar_hour_of_day
 from sun_angles import daylight_from_SHA, sunrise_from_SHA, SHA_deg_from_DOY_lat
 
-def daily_Rn_integration_verma(
+def daylight_Rn_integration_verma(
         Rn_Wm2: Union[Raster, np.ndarray, float],
         time_UTC: Union[datetime, str, list, np.ndarray] = None,
         geometry: Union[SpatialGeometry, GeoSeries] = None,
@@ -134,3 +134,5 @@ def daily_Rn_integration_verma(
         Rn_daily = 1.6 * Rn_Wm2 / (np.pi * np.sin(np.pi * (hour_of_day - sunrise_hour) / (daylight_hours)))
     
     return Rn_daily
+
+daily_Rn_integration_verma = daylight_Rn_integration_verma

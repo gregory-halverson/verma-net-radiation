@@ -48,7 +48,7 @@ from .constants import *
 from .brutsaert_atmospheric_emissivity import brutsaert_atmospheric_emissivity
 from .incoming_longwave_radiation import incoming_longwave_radiation
 from .outgoing_longwave_radiation import outgoing_longwave_radiation
-from .daily_Rn_integration_verma import daily_Rn_integration_verma
+from .daylight_Rn_integration_verma import daily_Rn_integration_verma
 
 logger = logging.getLogger(__name__)
 
